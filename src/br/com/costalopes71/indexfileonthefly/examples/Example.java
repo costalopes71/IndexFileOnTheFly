@@ -1,4 +1,4 @@
-package br.com.costalopes71.indexfileonthefly.main;
+package br.com.costalopes71.indexfileonthefly.examples;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -8,7 +8,7 @@ import java.util.List;
 
 import br.com.costalopes71.indexfileonthefly.indexer.MemoryIndexer;
 
-public class Main {
+public class Example {
 
 	public static void main(String[] args) {
 		
