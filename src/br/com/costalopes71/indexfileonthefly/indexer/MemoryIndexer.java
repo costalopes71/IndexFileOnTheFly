@@ -24,9 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MemoryIndexer {
 
-	private static final int KEY_POSITION = 4;
-	private static final String SEPARATOR = "|";
-	private static final String FILE_PATH = "F:\\workspaces\\CodigosDeTeste_workspace\\docs\\arquivo_entrada\\LEITURA_ALIMENTADOR_20180726.dsv";
+	private static final int KEY_POSITION = 0;
+	private static final String SEPARATOR = ";";
+	private static final String FILE_PATH = "F:\\workspaces\\CodigosDeTeste_workspace\\docs\\testeFile.csv";
 	private static MemoryIndexer memoryIndexer;
 	private ConcurrentHashMap<String, List<Long>> index = new ConcurrentHashMap<>();
 	
@@ -136,8 +136,12 @@ public class MemoryIndexer {
 	}
 
 	private void buildIndex() throws IOException {
+		System.out.println("Building index...");
 		
 		try (RandomAccessFile file = new RandomAccessFile(FILE_PATH, "r");) {
+			
+			//skip header
+			file.readLine();
 			
 			// populate index and read file
 			String s;
@@ -150,16 +154,17 @@ public class MemoryIndexer {
 					String key = getKey(s);
 					index.computeIfAbsent(key, k -> new ArrayList<>()).add(start);
 				}
-					
+				
 			} while (s != null);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
+		System.out.println("Finished building index...");
 	}
 	
 	private String getKey(String line) {
 		return line.split(SEPARATOR)[KEY_POSITION];
 	}
-	
+
 }
