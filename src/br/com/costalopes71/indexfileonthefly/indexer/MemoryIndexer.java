@@ -11,10 +11,17 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Singleton that builds an index for over a given file. It does it in memory using a map where the key is a <code>String</code>
+ * and the value is a <code>List</code> of <code>Long</code> that contains all the byte positions in the file where that key was found. 
+ * @author Joao Lopes
+ *
+ */
 public class MemoryIndexer {
 
 	private static final int KEY_POSITION = 4;
@@ -35,45 +42,44 @@ public class MemoryIndexer {
 		return memoryIndexer;
 	}
 
+	/**
+	 * Returns an unmodifiable <code>List</code> containing all positions in the file that are from a given key. Keep
+	 * in mind that this method is <bold>NOT</bold> returning the line number of a given key, indeed it returns the byte position
+	 * of the line that contains the key, so you can randomly access that line without needing to iterate the whole file.
+	 * @param <code>String</code> key, the key that you want the positions of lines in the file to be returned
+	 * @return <code>List<Long></code>, an unmodifiable list containing all the byte positions of a certain key.
+	 */
 	public List<Long> getPositions(String key) {
-		return index.get(key);
+		return Collections.unmodifiableList(index.get(key));
 	}
 
+	/**
+	 * Returns an unmodifiable <code>Set</code> of <code>String</code> containing all the existing keys in the file. 
+	 * @return <code>Set</code> of <code>String</code> with all the keys in the file. Keep in mind that the returned <code>Set</code> is
+	 * unmodifiable.
+	 */
 	public Set<String> getKeys() {
-		return index.keySet();
-	}
-	
-	private void buildIndex() throws IOException {
-		
-		try (RandomAccessFile file = new RandomAccessFile(FILE_PATH, "r");) {
-			
-			// populate index and read file
-			String s;
-			do {
-				
-				long start = file.getFilePointer();
-				s = file.readLine();
-				
-				if (s != null) {
-					String key = getKey(s);
-					index.computeIfAbsent(key, k -> new ArrayList<>()).add(start);
-				}
-					
-			} while (s != null);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
-	private String getKey(String line) {
-		return line.split(SEPARATOR)[KEY_POSITION];
+		return Collections.unmodifiableSet(index.keySet());
 	}
 
-	public static long getLinesCountUsingStream(Path filePath, Charset charset) throws IOException {
-		return Files.lines(filePath, charset).count();
+	/**
+	 * This method count the total of lines in a file. This version of this method uses java 8 approach to do so. 
+	 * @param <code>String</code> filePath, the path to the file that the lines are to be counted.
+	 * @param <code>Charset</code> encoding, the encode of the file.
+	 * @return long, the total of lines in the file.
+	 * @throws IOException
+	 */
+	public static long getLinesCountUsingStream(Path filePath, Charset encoding) throws IOException {
+		return Files.lines(filePath, encoding).count();
 	}
 	
+	/**
+	 * This method count the total of lines in a file. 
+	 * @param <code>String</code> filePath, the path to the file that the lines are to be counted.
+	 * @param <code>Charset</code> encoding, the encode of the file.
+	 * @return long, the total of lines in the file.
+	 * @throws IOException
+	 */
 	public static long getLinesCount(String fileName, Charset encoding) throws IOException {
 	    long linesCount = 0;
 	    File file = new File(fileName);
@@ -127,6 +133,33 @@ public class MemoryIndexer {
 	        fileIn.close();
 	    }
 	    return linesCount;
+	}
+
+	private void buildIndex() throws IOException {
+		
+		try (RandomAccessFile file = new RandomAccessFile(FILE_PATH, "r");) {
+			
+			// populate index and read file
+			String s;
+			do {
+				
+				long start = file.getFilePointer();
+				s = file.readLine();
+				
+				if (s != null) {
+					String key = getKey(s);
+					index.computeIfAbsent(key, k -> new ArrayList<>()).add(start);
+				}
+					
+			} while (s != null);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private String getKey(String line) {
+		return line.split(SEPARATOR)[KEY_POSITION];
 	}
 	
 }

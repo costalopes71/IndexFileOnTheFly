@@ -23,8 +23,6 @@ public class Example2 {
 		}
 		System.out.println("Elapsed time: " + Duration.between(now, Instant.now()).toSeconds());
 		
-		Thread.sleep(2000);
-		
 		Instant now2 = Instant.now();
 		try {
 			long count = MemoryIndexer.getLinesCountUsingStream(Paths.get(FILE_PATH), StandardCharsets.ISO_8859_1);
