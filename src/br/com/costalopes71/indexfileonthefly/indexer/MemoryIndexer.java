@@ -10,11 +10,14 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Singleton that builds an index for over a given file. It does it in memory using a map where the key is a <code>String</code>
@@ -28,7 +31,7 @@ public class MemoryIndexer {
 	private static final String SEPARATOR = ";";
 	private static final String FILE_PATH = "F:\\workspaces\\CodigosDeTeste_workspace\\docs\\testeFile.csv";
 	private static MemoryIndexer memoryIndexer;
-	private ConcurrentHashMap<String, List<Long>> index = new ConcurrentHashMap<>();
+	private Map<String, List<Long>> index = new HashMap<>();
 	
 	private MemoryIndexer() throws IOException {
 		// build index
@@ -135,8 +138,17 @@ public class MemoryIndexer {
 	    return linesCount;
 	}
 
+	/**
+	 * Returns the map that contains the indexed information
+	 * @return ConcurrentHashMap map
+	 */
+	public Map<String, List<Long>> getMapping() {
+		return Collections.unmodifiableMap(index);
+	}
+	
 	private void buildIndex() throws IOException {
 		System.out.println("Building index...");
+		Instant now = Instant.now();
 		
 		try (RandomAccessFile file = new RandomAccessFile(FILE_PATH, "r");) {
 			
@@ -160,7 +172,7 @@ public class MemoryIndexer {
 			e.printStackTrace();
 		}
 		
-		System.out.println("Finished building index...");
+		System.out.println("Finished building index. Elapsed time: " + Duration.between(now, Instant.now()).toSeconds() + " seconds");
 	}
 	
 	private String getKey(String line) {
