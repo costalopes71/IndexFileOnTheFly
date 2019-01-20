@@ -20,6 +20,16 @@ public class Example3 {
 		}
 		
 		System.out.println("Elapsed time: " + Duration.between(now, Instant.now()).toSeconds());
+		
+		System.out.println("\nBuild it again");
+		Instant now2 = Instant.now();
+		try {
+			FileIndexer.getInstance().createIndexedFile("F:\\workspaces\\CodigosDeTeste_workspace\\docs\\indexedFile2.csv");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Elapsed time for second build: " + Duration.between(now2, Instant.now()).toSeconds() + " seconds");
+		
 	}
 	
 }

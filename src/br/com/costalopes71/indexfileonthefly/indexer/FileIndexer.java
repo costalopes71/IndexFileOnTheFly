@@ -22,9 +22,9 @@ public class FileIndexer {
 	public static FileIndexer getInstance() throws IOException {
 		if (fileIndexer == null) {
 			fileIndexer = new FileIndexer();
+			indexedInfo = MemoryIndexer.getInstance().getMapping();
 		}
 		
-		indexedInfo = MemoryIndexer.getInstance().getMapping();
 		return fileIndexer;
 	}
 	
